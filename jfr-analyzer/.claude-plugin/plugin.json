@@ -1,0 +1,9 @@
+{
+  "name": "jfr-analyzer",
+  "version": "1.0.0",
+  "description": "Analyze JFR (Java Flight Recorder) text exports for GC, CPU, memory allocation, and thread-level bottlenecks",
+  "author": {
+    "name": "shako"
+  },
+  "keywords": ["jfr", "performance", "elasticsearch", "gc", "profiling", "java"]
+}
