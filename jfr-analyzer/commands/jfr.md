@@ -24,8 +24,10 @@ Supported input formats:
 3. Present the complete Markdown output to the user.
 4. Summarize the top findings: worst GC pauses, CPU hotspot #1, largest memory allocator, and hottest thread.
 
-If the user asks for a specific section only (e.g., "just GC" or "translog"), run the corresponding individual script instead:
+If the user asks for a specific section only, run the corresponding individual script instead:
 - GC: `jfr_gc.py`
-- CPU / translog: `jfr_cpu.py`
+- CPU: `jfr_cpu.py`
 - Memory: `jfr_alloc.py`
 - Threads: `jfr_threads.py`
+- Lock contention: `jfr_lock.py`
+- I/O latency: `jfr_io.py`

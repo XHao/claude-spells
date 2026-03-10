@@ -23,6 +23,8 @@ All scripts are in `scripts/` relative to this SKILL.md:
 | `scripts/jfr_cpu.py` | CPU hotspot methods (Top 50) |
 | `scripts/jfr_alloc.py` | Object allocation (Top 20 by count and by size) |
 | `scripts/jfr_threads.py` | Per-thread CPU samples and allocation |
+| `scripts/jfr_lock.py` | Lock contention (monitor + j.u.c park, Top 20 by wait time) |
+| `scripts/jfr_io.py` | File and socket I/O latency (Top 20 slowest ops) |
 
 ## Usage
 
@@ -56,6 +58,8 @@ python3 <skill-root>/scripts/jfr_threads.py full_analysis.txt # Threads only
 - **GC Max > 500ms**: Risk of application stall; investigate allocation hot paths.
 - **GC P99 > 200ms**: Significant tail latency impact.
 - **Threads with high allocation**: Indicates memory pressure; check top allocating classes and consider heap tuning.
+- **Lock wait ≥ 100ms (single event)**: Severe lock contention; consider reducing lock scope or switching to lock-free structures.
+- **I/O operation ≥ 100ms**: Slow disk or network; check paths and endpoints in the I/O report.
 
 ## Additional Resources
 

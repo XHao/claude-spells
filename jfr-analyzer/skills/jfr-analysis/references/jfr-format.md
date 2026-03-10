@@ -76,6 +76,66 @@ jdk.ThreadAllocationStatistics {
 
 **Key fields**: `allocated`, `thread`
 
+### jdk.JavaMonitorEnter
+Thread blocked waiting to acquire a `synchronized` monitor.
+
+```
+jdk.JavaMonitorEnter {
+  startTime = ...
+  duration = 35.00 ms
+  monitorClass = java.util.HashMap (classLoader = bootstrap)
+  previousOwner = "other-thread" (javaThreadId = 99)
+  eventThread = "worker-1" (javaThreadId = 42)
+}
+```
+
+**Key fields**: `duration` (ms), `monitorClass`, `eventThread`
+
+### jdk.ThreadPark
+Thread parked via `LockSupport.park()`, covering `ReentrantLock`, `CountDownLatch`, etc.
+
+```
+jdk.ThreadPark {
+  startTime = ...
+  duration = 12.00 ms
+  parkedClass = java.util.concurrent.locks.AbstractQueuedSynchronizer (classLoader = bootstrap)
+  eventThread = "worker-2" (javaThreadId = 55)
+}
+```
+
+**Key fields**: `duration` (ms), `parkedClass`, `eventThread`
+
+### jdk.FileRead / jdk.FileWrite
+File I/O operation.
+
+```
+jdk.FileRead {
+  startTime = ...
+  duration = 5.00 ms
+  path = "/data/app/config.properties"
+  bytesRead = 4096
+  eventThread = "main" (javaThreadId = 1)
+}
+```
+
+**Key fields**: `duration` (ms), `path`, `bytesRead` / `bytesWritten`
+
+### jdk.SocketRead / jdk.SocketWrite
+Network socket I/O operation.
+
+```
+jdk.SocketRead {
+  startTime = ...
+  duration = 25.00 ms
+  host = "db.internal"
+  port = 5432
+  bytesRead = 1024
+  eventThread = "http-handler-3" (javaThreadId = 77)
+}
+```
+
+**Key fields**: `duration` (ms), `host`, `port`, `bytesRead` / `bytesWritten`
+
 ## Stack Trace Format
 
 Stack frames in JFR text exports follow this format:

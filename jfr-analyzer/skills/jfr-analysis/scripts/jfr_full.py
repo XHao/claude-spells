@@ -21,6 +21,8 @@ from jfr_gc import analyze_gc
 from jfr_cpu import analyze_cpu
 from jfr_alloc import analyze_alloc
 from jfr_threads import analyze_threads
+from jfr_lock import analyze_lock
+from jfr_io import analyze_io
 
 
 def main():
@@ -44,6 +46,8 @@ def main():
             analyze_cpu(text_path),
             analyze_alloc(text_path),
             analyze_threads(text_path),
+            analyze_lock(text_path),
+            analyze_io(text_path),
         ]
 
         print("\n".join(header))

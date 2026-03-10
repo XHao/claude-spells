@@ -26,7 +26,7 @@ Each plugin lives in its own subdirectory and follows the Claude Code plugin for
 Analyze Java Flight Recorder (JFR) text exports for performance bottlenecks.
 
 - **Command**: `/jfr [file-path]`
-- **Analyzes**: GC pauses, CPU hotspots, memory allocation, thread activity
+- **Analyzes**: GC pauses, CPU hotspots, memory allocation, thread activity, lock contention, I/O latency
 - **Input**: `.jfr` binary files (auto-converted) or plain-text exports
 - **Output**: Markdown report with top findings
 
