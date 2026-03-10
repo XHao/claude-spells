@@ -2,6 +2,20 @@
 
 Personal Claude Code plugins for everyday tooling.
 
+## Installation
+
+Plugins must be explicitly registered. Run the install script once to add this repo as a marketplace, then install individual plugins:
+
+```bash
+# 1. Register the marketplace
+./install.sh
+
+# 2. Install a plugin (inside Claude Code)
+/plugin install jfr-analyzer@claude-spells
+```
+
+Requires `jq` (`brew install jq`).
+
 ## Structure
 
 Each plugin lives in its own subdirectory and follows the Claude Code plugin format:
