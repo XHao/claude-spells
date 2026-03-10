@@ -9,26 +9,14 @@ import re
 import sys
 from collections import Counter, defaultdict
 
-# Translog-related keywords for special highlighting
-TRANSLOG_KEYWORDS = [
-    "TranslogWriter",
-    "Translog.",
-    "translog",
-]
-
 FRAME_PATTERN = re.compile(
     r"^\s+([a-zA-Z_$][\w$./<>\[\]]+\(.*?\))\s+line:"
 )
 
 
-def is_translog(frame: str) -> bool:
-    return any(kw in frame for kw in TRANSLOG_KEYWORDS)
-
-
 def analyze_cpu(file_path: str) -> str:
     method_counts: Counter = Counter()
     thread_method_counts: defaultdict = defaultdict(Counter)
-    translog_frames: Counter = Counter()
     total_samples = 0
 
     in_sample = False
@@ -72,8 +60,6 @@ def analyze_cpu(file_path: str) -> str:
                         method_counts[frame] += 1
                         if current_thread:
                             thread_method_counts[current_thread][frame] += 1
-                        if is_translog(frame):
-                            translog_frames[frame] += 1
 
     except FileNotFoundError:
         return f"**Error**: File not found: `{file_path}`"
@@ -92,8 +78,7 @@ def analyze_cpu(file_path: str) -> str:
         "| ---: | ---: | :--- |",
     ]
     for rank, (method, count) in enumerate(method_counts.most_common(50), 1):
-        tag = " 🔴 translog" if is_translog(method) else ""
-        lines.append(f"| {rank} | {count:,} | `{method}`{tag} |")
+        lines.append(f"| {rank} | {count:,} | `{method}` |")
 
     lines.append("")
 
@@ -109,35 +94,9 @@ def analyze_cpu(file_path: str) -> str:
     ]
     for thread, count in top_threads:
         top_method = thread_method_counts[thread].most_common(1)[0][0] if thread_method_counts[thread] else "-"
-        # Shorten thread name for readability
-        short_thread = re.sub(r"elasticsearch\[[\w.-]+\]", "es", thread)
-        lines.append(f"| `{short_thread}` | {count:,} | `{top_method[:80]}` |")
+        lines.append(f"| `{thread}` | {count:,} | `{top_method[:80]}` |")
 
     lines.append("")
-
-    # Translog section
-    if translog_frames:
-        total_translog = sum(translog_frames.values())
-        pct = total_translog / max(sum(method_counts.values()), 1) * 100
-        lines += [
-            "### Translog-Related CPU Activity",
-            "",
-            f"Total translog-related frame appearances: **{total_translog:,}** ({pct:.1f}% of all frames)",
-            "",
-            "| Count | Frame |",
-            "| ---: | :--- |",
-        ]
-        for frame, count in translog_frames.most_common(20):
-            lines.append(f"| {count:,} | `{frame}` |")
-        lines.append("")
-    else:
-        lines += [
-            "### Translog-Related CPU Activity",
-            "",
-            "No translog-related frames found in ExecutionSamples.",
-            "",
-        ]
-
     return "\n".join(lines)
 
 

@@ -1,6 +1,6 @@
 ---
 name: jfr-analysis
-description: This skill should be used when the user asks to "analyze JFR file", "JFR performance analysis", "check GC pauses", "CPU hotspots in JFR", "memory allocation analysis", "thread analysis", "translog analysis", "elasticsearch performance bottleneck", "analyze full_analysis.txt", or wants to understand Java Flight Recorder profiling data from Elasticsearch or other JVM applications.
+description: This skill should be used when the user asks to "analyze JFR file", "JFR performance analysis", "check GC pauses", "CPU hotspots in JFR", "memory allocation analysis", "thread analysis", "analyze full_analysis.txt", or wants to understand Java Flight Recorder profiling data from any JVM application.
 version: 1.0.0
 ---
 
@@ -20,9 +20,9 @@ All scripts are in `scripts/` relative to this SKILL.md:
 | :--- | :--- |
 | `scripts/jfr_full.py` | **Full report** — runs all analyses, outputs Markdown |
 | `scripts/jfr_gc.py` | GC pause statistics (count, P90/P99/Max, total time) |
-| `scripts/jfr_cpu.py` | CPU hotspot methods (Top 50) + translog frame detection |
+| `scripts/jfr_cpu.py` | CPU hotspot methods (Top 50) |
 | `scripts/jfr_alloc.py` | Object allocation (Top 20 by count and by size) |
-| `scripts/jfr_threads.py` | Per-thread CPU samples, allocation, translog activity |
+| `scripts/jfr_threads.py` | Per-thread CPU samples and allocation |
 
 ## Usage
 
@@ -50,14 +50,12 @@ python3 <skill-root>/scripts/jfr_threads.py full_analysis.txt # Threads only
 1. Determine the JFR file path (default: `full_analysis.txt` in current directory).
 2. Run `jfr_full.py` for a complete report, or individual scripts for targeted questions.
 3. Parse the Markdown output and present findings to the user.
-4. For follow-up questions (e.g., "is translog still a problem?"), use `jfr_cpu.py` or `jfr_threads.py` output — they include a dedicated **Translog Activity** section.
 
 ## Interpreting Results
 
-- **GC Max > 500ms**: Risk of node timeout; investigate allocation hot paths.
+- **GC Max > 500ms**: Risk of application stall; investigate allocation hot paths.
 - **GC P99 > 200ms**: Significant tail latency impact.
-- **Translog frames in CPU samples**: Indicates translog sync is still occurring despite `async` durability setting — check `TranslogWriter.sync()` call stack.
-- **flush threads with high allocation**: Large segment flushes consuming heap; consider tuning `indices.memory.index_buffer_size`.
+- **Threads with high allocation**: Indicates memory pressure; check top allocating classes and consider heap tuning.
 
 ## Additional Resources
 

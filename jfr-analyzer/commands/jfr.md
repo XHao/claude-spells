@@ -22,7 +22,7 @@ Supported input formats:
    python3 ~/.claude/plugins/local/jfr-analyzer/skills/jfr-analysis/scripts/jfr_full.py <file-path>
    ```
 3. Present the complete Markdown output to the user.
-4. Summarize the top findings: worst GC pauses, CPU hotspot #1, largest memory allocator, hottest thread, and any translog activity detected.
+4. Summarize the top findings: worst GC pauses, CPU hotspot #1, largest memory allocator, and hottest thread.
 
 If the user asks for a specific section only (e.g., "just GC" or "translog"), run the corresponding individual script instead:
 - GC: `jfr_gc.py`

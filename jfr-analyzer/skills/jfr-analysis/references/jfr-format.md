@@ -76,32 +76,6 @@ jdk.ThreadAllocationStatistics {
 
 **Key fields**: `allocated`, `thread`
 
-## Thread Naming Conventions (Elasticsearch)
-
-| Pattern | Role |
-| :--- | :--- |
-| `es[node][write][T#N]` | Indexing/write threads |
-| `es[node][flush][T#N]` | Lucene flush (segment write) threads |
-| `es[node][management][T#N]` | Management/stats threads |
-| `es[node][transport_worker][T#N]` | Network I/O threads |
-| `es[...]: Lucene Merge Thread #N` | Segment merge threads |
-| `es[node][search][T#N]` | Search threads |
-
-## Translog-Related Frames
-
-When `index.translog.durability = async` is set, translog syncs should be minimal. Look for these frames to detect residual translog activity:
-
-| Frame | Meaning |
-| :--- | :--- |
-| `TranslogWriter.sync()` | Explicit translog fsync |
-| `TranslogWriter.syncUpTo(long, long)` | Conditional sync up to sequence number |
-| `TranslogWriter.syncNeeded()` | Check whether sync is needed |
-| `Translog.stats()` | Stats collection (may appear in management threads — benign) |
-| `Translog.totalOperationsByMinGen(long)` | Operation count for stats — benign |
-| `Translog.getLastSyncedGlobalCheckpoint()` | Checkpoint read — lightweight |
-
-**Concern threshold**: If `TranslogWriter.sync()` or `syncUpTo()` appears in **flush threads** during heavy indexing, it indicates sync is still being triggered (possibly from the `InternalEngine` flush path), not just from async background flush. Investigate the full stack trace.
-
 ## Stack Trace Format
 
 Stack frames in JFR text exports follow this format:

@@ -2,7 +2,6 @@
 """
 JFR Thread-Level Analyzer
 Aggregates CPU samples and memory allocation per thread.
-Also highlights translog-related threads and frames.
 Usage: python3 jfr_threads.py <file_path>
 """
 
@@ -10,7 +9,6 @@ import re
 import sys
 from collections import Counter, defaultdict
 
-TRANSLOG_KEYWORDS = ["TranslogWriter", "Translog.", "translog"]
 WEIGHT_PATTERN = re.compile(r"weight\s*=\s*([\d.]+)\s*(kB|MB|GB|B)?")
 THREAD_PATTERN = re.compile(r'(?:sampledThread|eventThread)\s*=\s*"([^"]+)"')
 
@@ -30,18 +28,9 @@ def fmt_bytes(b: float) -> str:
     return f"{b:.0f} B"
 
 
-def shorten(thread: str) -> str:
-    # Remove common elasticsearch prefix for brevity
-    return re.sub(r"elasticsearch\[[^\]]+\]", "es", thread)
-
-
 def analyze_threads(file_path: str) -> str:
-    # CPU samples per thread
     cpu_counts: Counter = Counter()
-    # Allocation bytes per thread
     alloc_bytes: Counter = Counter()
-    # Translog frame appearances per thread
-    translog_cpu: Counter = Counter()
 
     in_exec = False
     in_alloc = False
@@ -53,7 +42,6 @@ def analyze_threads(file_path: str) -> str:
             for line in f:
                 stripped = line.strip()
 
-                # --- ExecutionSample block ---
                 if "jdk.ExecutionSample" in stripped:
                     in_exec = True
                     in_alloc = False
@@ -61,7 +49,6 @@ def analyze_threads(file_path: str) -> str:
                     current_thread = ""
                     continue
 
-                # --- ObjectAllocationSample block ---
                 if "jdk.ObjectAllocationSample" in stripped or "jdk.ObjectAllocationOutsideTLAB" in stripped:
                     in_alloc = True
                     in_exec = False
@@ -72,7 +59,6 @@ def analyze_threads(file_path: str) -> str:
                 if not (in_exec or in_alloc):
                     continue
 
-                # Capture thread name
                 m = THREAD_PATTERN.search(line)
                 if m:
                     current_thread = m.group(1)
@@ -80,7 +66,6 @@ def analyze_threads(file_path: str) -> str:
                         cpu_counts[current_thread] += 1
                     continue
 
-                # Allocation weight
                 if in_alloc:
                     m = WEIGHT_PATTERN.search(line)
                     if m:
@@ -89,18 +74,13 @@ def analyze_threads(file_path: str) -> str:
                         in_alloc = False
                     continue
 
-                # Stack trace frames (exec only)
                 if in_exec:
                     if "stackTrace = [" in line:
                         in_stack = True
                         continue
-                    if in_stack:
-                        if stripped == "]":
-                            in_stack = False
-                            in_exec = False
-                            continue
-                        if any(kw in line for kw in TRANSLOG_KEYWORDS):
-                            translog_cpu[current_thread] += 1
+                    if in_stack and stripped == "]":
+                        in_stack = False
+                        in_exec = False
 
     except FileNotFoundError:
         return f"**Error**: File not found: `{file_path}`"
@@ -110,40 +90,21 @@ def analyze_threads(file_path: str) -> str:
 
     lines = ["## Thread Analysis", ""]
 
-    # CPU per thread
     lines += [
         "### CPU Samples per Thread (Top 20)",
         "",
-        "| Thread | CPU Samples | Translog Frames | Translog % |",
-        "| :--- | ---: | ---: | ---: |",
+        "| Thread | CPU Samples |",
+        "| :--- | ---: |",
     ]
     for thread, count in cpu_counts.most_common(20):
-        tlog = translog_cpu.get(thread, 0)
-        pct = tlog / count * 100 if count else 0
-        flag = " 🔴" if tlog > 0 else ""
-        lines.append(f"| `{shorten(thread)}` | {count:,} | {tlog:,}{flag} | {pct:.1f}% |")
+        lines.append(f"| `{thread}` | {count:,} |")
 
     lines += ["", "### Memory Allocation per Thread (Top 20)", "",
               "| Thread | Allocated |", "| :--- | ---: |"]
     for thread, size in alloc_bytes.most_common(20):
-        lines.append(f"| `{shorten(thread)}` | {fmt_bytes(size)} |")
+        lines.append(f"| `{thread}` | {fmt_bytes(size)} |")
 
     lines.append("")
-
-    # Translog thread summary
-    translog_threads = [(t, c) for t, c in translog_cpu.most_common() if c > 0]
-    if translog_threads:
-        lines += [
-            "### Translog Activity by Thread",
-            "",
-            "| Thread | Translog Frame Appearances | Total CPU Samples |",
-            "| :--- | ---: | ---: |",
-        ]
-        for thread, tlog in translog_threads:
-            total = cpu_counts.get(thread, 0)
-            lines.append(f"| `{shorten(thread)}` | {tlog:,} | {total:,} |")
-        lines.append("")
-
     return "\n".join(lines)
 
 

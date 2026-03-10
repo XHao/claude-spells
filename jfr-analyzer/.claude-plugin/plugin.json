@@ -5,5 +5,5 @@
   "author": {
     "name": "shako"
   },
-  "keywords": ["jfr", "performance", "elasticsearch", "gc", "profiling", "java"]
+  "keywords": ["jfr", "performance", "gc", "profiling", "java"]
 }
