@@ -4,11 +4,15 @@ argument-hint: [file-path]
 allowed-tools: Bash, Read
 ---
 
-Analyze the JFR text export file specified by the user.
+Analyze the JFR file specified by the user.
 
 **File to analyze**: $ARGUMENTS
 
 If no file path is provided in `$ARGUMENTS`, use `full_analysis.txt` in the current working directory.
+
+Supported input formats:
+- `.jfr` binary files — automatically converted via `jfr print` (requires JDK 17+ on PATH)
+- Plain-text JFR exports (produced by `jfr print recording.jfr > output.txt`)
 
 **Steps**:
 

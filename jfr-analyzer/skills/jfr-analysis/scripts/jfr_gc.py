@@ -71,5 +71,14 @@ def analyze_gc(file_path: str) -> str:
 
 
 if __name__ == "__main__":
+    import os
+    _DIR = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, _DIR)
+    from jfr_convert import ensure_text_file
     path = sys.argv[1] if len(sys.argv) > 1 else "full_analysis.txt"
-    print(analyze_gc(path))
+    text_path, tmp = ensure_text_file(path)
+    try:
+        print(analyze_gc(text_path))
+    finally:
+        if tmp:
+            tmp.cleanup()
