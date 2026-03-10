@@ -70,7 +70,7 @@ Cumulative allocation per thread since JVM start. Snapshot event.
 jdk.ThreadAllocationStatistics {
   startTime = ...
   allocated = 325.3 GB
-  thread = "elasticsearch[...][flush][T#1]" (javaThreadId = 141)
+  thread = "worker-thread-1" (javaThreadId = 141)
 }
 ```
 

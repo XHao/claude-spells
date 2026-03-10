@@ -56,7 +56,7 @@ def analyze_gc(file_path: str) -> str:
     # Diagnosis
     issues = []
     if max_ms >= 500:
-        issues.append(f"🔴 Max GC pause **{max_ms:.0f} ms** exceeds 500ms — risk of node timeout / request failures.")
+        issues.append(f"🔴 Max GC pause **{max_ms:.0f} ms** exceeds 500ms — risk of application stall and request failures.")
     if p99_ms >= 200:
         issues.append(f"⚠️ P99 pause **{p99_ms:.0f} ms** severely impacts tail latency.")
     if total_hours > 1:
