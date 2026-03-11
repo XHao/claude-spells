@@ -7,11 +7,7 @@
     {
       "name": "jfr-analyzer",
       "description": "Analyze Java Flight Recorder (JFR) files for GC, CPU, memory allocation, lock contention, and I/O latency. Supports .jfr binary and plain-text exports.",
-      "source": {
-        "source": "git-subdir",
-        "url": "git@github.com:XHao/claude-spells.git",
-        "path": "jfr-analyzer/"
-      }
+      "source": "./jfr-analyzer"
     }
   ]
 }

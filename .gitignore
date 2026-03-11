@@ -21,3 +21,6 @@ full_analysis.txt
 .vscode/
 *.swp
 *.swo
+
+# Claude Code local session settings
+.claude/

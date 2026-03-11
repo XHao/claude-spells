@@ -19,7 +19,7 @@ fi
 # Inject the marketplace entry (idempotent)
 UPDATED=$(jq \
   --arg path "$MARKETPLACE_PATH" \
-  '.extraKnownMarketplaces["claude-spells"] = $path' \
+  '.extraKnownMarketplaces["claude-spells"] = {"source": {"source": "file", "path": $path}}' \
   "$SETTINGS")
 
 echo "$UPDATED" > "$SETTINGS"
