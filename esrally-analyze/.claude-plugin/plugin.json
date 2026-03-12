@@ -1,0 +1,9 @@
+{
+  "name": "esrally-analyze",
+  "version": "1.0.0",
+  "description": "Analyze esrally benchmark reports and generate structured technical summaries. Supports single-run analysis, A/B comparison, and multi-run baseline statistics.",
+  "author": {
+    "name": "shako"
+  },
+  "keywords": ["esrally", "elasticsearch", "benchmark", "performance", "throughput", "indexing"]
+}

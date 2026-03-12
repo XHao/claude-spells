@@ -8,6 +8,11 @@
       "name": "jfr-analyzer",
       "description": "Analyze Java Flight Recorder (JFR) files for GC, CPU, memory allocation, lock contention, and I/O latency. Supports .jfr binary and plain-text exports.",
       "source": "./jfr-analyzer"
+    },
+    {
+      "name": "esrally-analyze",
+      "description": "Analyze esrally benchmark reports and generate structured technical summaries. Supports single-run analysis, A/B comparison, and multi-run baseline statistics.",
+      "source": "./esrally-analyze"
     }
   ]
 }
