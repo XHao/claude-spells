@@ -2,7 +2,7 @@
 # Install claude-spells marketplace into ~/.claude/settings.json
 set -euo pipefail
 
-MARKETPLACE_PATH="$(cd "$(dirname "$0")" && pwd)/marketplace.json"
+REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 SETTINGS="$HOME/.claude/settings.json"
 
 if ! command -v jq &>/dev/null; then
@@ -10,22 +10,24 @@ if ! command -v jq &>/dev/null; then
   exit 1
 fi
 
+# Create settings dir if needed
+mkdir -p "$(dirname "$SETTINGS")"
+
 # Create settings file if it doesn't exist
 if [ ! -f "$SETTINGS" ]; then
-  mkdir -p "$(dirname "$SETTINGS")"
   echo '{}' > "$SETTINGS"
 fi
 
-# Inject the marketplace entry (idempotent)
+# Register the marketplace as a local directory (idempotent)
 UPDATED=$(jq \
-  --arg path "$MARKETPLACE_PATH" \
-  '.extraKnownMarketplaces["claude-spells"] = {"source": {"source": "file", "path": $path}}' \
+  --arg path "$REPO_DIR" \
+  '.extraKnownMarketplaces["claude-spells"] = {"source": {"source": "directory", "path": $path}}' \
   "$SETTINGS")
 
 echo "$UPDATED" > "$SETTINGS"
 
 echo "Registered claude-spells marketplace in $SETTINGS"
-echo "Marketplace file: $MARKETPLACE_PATH"
+echo "Marketplace directory: $REPO_DIR"
 echo ""
 echo "Next steps:"
 echo "  1. Open Claude Code"
