@@ -10,10 +10,10 @@ Analyze the JFR file specified by the user.
 
 ---
 
-## Phase 0 — Parse Arguments + Interactive Confirmation
+## Phase 0 — Parse Arguments + Intent Resolution
 
 Parse `$ARGUMENTS`:
-- `JFR_FILE`: first positional argument (no `=`). Default: `full_analysis.txt`
+- `JFR_FILE`: first positional argument (no `=`). Empty if not provided.
 - `SRC_PATH`: extract from `src=<path>` token. Empty if not provided.
 - `LANG`: extract from `lang=en` or `lang=zh` token. Empty if not provided.
 
@@ -23,7 +23,37 @@ Output filenames (write to current working directory):
 - JFR technical report: `<input-file>_jfr_report.md`
 - Optimization plan: `<input-file>_optimization_plan.md`
 
-**Interactive confirmation** — ask only for missing parameters, combine into a single interaction:
+**Step 0a — Ambiguity check:**
+
+Inspect `$ARGUMENTS` for signals that require clarification before proceeding:
+
+| Signal | Likely intent | Action |
+|---|---|---|
+| `JFR_FILE` is empty | No file specified — may want to record instead | Present choice menu (see below) |
+| `JFR_FILE` given but file does not exist on disk | Typo or wrong path | Show the error and ask: "Did you mean one of these?" then list `.jfr`/`.txt` files in the current directory |
+| `JFR_FILE` looks like a PID (plain integer) | May have confused `/jfr` with `/jfr-record` | Ask: "Looks like a process ID — did you want to record from PID `<N>`? Run `/jfr-record pid=<N>`" |
+
+**If `JFR_FILE` is empty**, present a disambiguation menu:
+
+```
+I need a JFR file to analyze. What would you like to do?
+
+  1. Specify a file path (I'll analyze it now)
+  2. Record a new JFR from a running Java process first → use /jfr-record
+  3. Scan current directory for JFR/txt files to choose from
+
+Enter a number, or paste the file path directly:
+```
+
+Map responses:
+- `1` → ask user to enter the file path, then set `JFR_FILE` and continue
+- `2` → tell user to run `/jfr-record` and stop
+- `3` → run `find . -maxdepth 2 \( -name "*.jfr" -o -name "*.txt" \) | head -20`, display results, ask user to choose
+- File path entered directly → set as `JFR_FILE` and continue
+
+**Step 0b — Ask for missing optional parameters** (only after `JFR_FILE` is confirmed):
+
+Combine into a single interaction. Only ask what is missing:
 
 | Missing params | Ask |
 |---|---|

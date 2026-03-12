@@ -37,11 +37,24 @@ Each plugin lives in its own subdirectory and follows the Claude Code plugin for
 
 ### jfr-analyzer
 
-Analyze Java Flight Recorder (JFR) text exports for performance bottlenecks.
+Analyze Java Flight Recorder (JFR) text exports for performance bottlenecks. Also supports recording JFR profiles directly from live JVM processes.
 
-- **Command**: `/jfr [file-path]`
+**Analyze an existing file:**
+- **Command**: `/jfr [file-path] [src=/path/to/src] [lang=zh|en]`
 - **Analyzes**: GC pauses, CPU hotspots, memory allocation, thread activity, lock contention, I/O latency
 - **Input**: `.jfr` binary files (auto-converted) or plain-text exports
-- **Output**: Markdown report with top findings
+- **Output**: Two Markdown documents — JFR technical report + project optimization plan
+
+**Record from a live JVM process:**
+- **Command**: `/jfr-record [pid=<pid>] [duration=60s] [output=/tmp/app] [analyze=true|false] [src=/path/to/src] [lang=zh|en]`
+- **Requires**: JDK with `jcmd` in PATH (JDK 11+)
+- **Flow**: lists Java processes → starts `jcmd JFR.start` → waits → converts `.jfr` → auto-analyzes
+- **Default**: `duration=60s`, `analyze=true`, `lang=zh`
+
+**End-to-end example:**
+```
+/jfr-record pid=12345 duration=120s src=~/projects/myapp lang=zh
+```
+Records 120s of profiling data from PID 12345, then produces a full Chinese-language analysis report.
 
 See [`jfr-analyzer/`](./jfr-analyzer/) for details.
