@@ -1,0 +1,9 @@
+{
+  "name": "flamegraph-analyzer",
+  "version": "1.0.0",
+  "description": "Analyze async-profiler HTML flamegraph files for CPU hotspots, layer breakdowns, and optimization recommendations",
+  "author": {
+    "name": "shako"
+  },
+  "keywords": ["flamegraph", "profiling", "async-profiler", "cpu", "hotspot", "java", "jvm", "performance", "spring-boot", "kafka", "flink"]
+}

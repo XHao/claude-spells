@@ -13,6 +13,11 @@
       "name": "esrally-analyze",
       "description": "Analyze esrally benchmark reports and generate structured technical summaries. Supports single-run analysis, A/B comparison, and multi-run baseline statistics.",
       "source": "./esrally-analyze"
+    },
+    {
+      "name": "flamegraph-analyzer",
+      "description": "Analyze async-profiler HTML flamegraph files for CPU hotspots, layer breakdowns, and optimization recommendations.",
+      "source": "./flamegraph-analyzer"
     }
   ]
 }
