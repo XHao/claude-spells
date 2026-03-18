@@ -12,7 +12,6 @@ Outputs JSON with:
 """
 
 import re
-import sys
 import json
 from collections import defaultdict
 
@@ -143,7 +142,7 @@ def categorize_frame(name):
     return 'other'
 
 
-def analyze(html_path):
+def analyze(html_path, focus_keywords=''):
     content = open(html_path, encoding='utf-8', errors='replace').read()
 
     # Title
@@ -162,6 +161,24 @@ def analyze(html_path):
     total = sum(frame_samples.values())
 
     sorted_frames = sorted(frame_samples.items(), key=lambda x: x[1], reverse=True)
+
+    # Focus frames: search ALL frames for user-specified keywords
+    focus_frames = []
+    if focus_keywords:
+        keywords = [k.strip().lower() for k in focus_keywords.split(',') if k.strip()]
+        seen = set()
+        for name, count in frame_samples.items():
+            n = name.lower()
+            if any(kw in n for kw in keywords) and name not in seen:
+                seen.add(name)
+                focus_frames.append({
+                    'name': name,
+                    'samples': count,
+                    'pct': round(100 * count / total, 2) if total else 0,
+                    'category': categorize_frame(name),
+                    'matched_keywords': [kw for kw in keywords if kw in n],
+                })
+        focus_frames.sort(key=lambda x: x['samples'], reverse=True)
 
     # Build per-frame list (top 200)
     frames = []
@@ -210,6 +227,8 @@ def analyze(html_path):
         'total_samples': total,
         'unique_frames': len(frame_samples),
         'detected_frameworks': detected_frameworks,
+        'focus_keywords': [k.strip() for k in focus_keywords.split(',') if k.strip()],
+        'focus_frames': focus_frames,
         'frames': frames,
         'categories': categories,
         'top_per_category': dict(top_per_cat),
@@ -217,8 +236,10 @@ def analyze(html_path):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('Usage: parse_flamegraph.py <flamegraph.html>', file=sys.stderr)
-        sys.exit(1)
-    result = analyze(sys.argv[1])
+    import argparse
+    parser = argparse.ArgumentParser(description='Parse async-profiler HTML flamegraph.')
+    parser.add_argument('html_path', help='Path to flamegraph HTML file')
+    parser.add_argument('--focus', default='', help='Comma-separated keywords to spotlight (e.g. translog,lz4,gc)')
+    args = parser.parse_args()
+    result = analyze(args.html_path, focus_keywords=args.focus)
     print(json.dumps(result, ensure_ascii=False, indent=2))
