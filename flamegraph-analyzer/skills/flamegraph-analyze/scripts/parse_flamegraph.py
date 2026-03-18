@@ -12,6 +12,7 @@ Outputs JSON with:
 """
 
 import re
+import sys
 import json
 from collections import defaultdict
 
@@ -41,7 +42,17 @@ def decode_cpool(content):
 
 
 def parse_frames(content, cpool):
-    """Parse f/u/n data calls and accumulate sample counts per frame."""
+    """Parse f/u/n data calls and accumulate sample counts per frame.
+
+    async-profiler JS signatures:
+      f(key, level, left, width, inln, c1, int)  -> width is 4th arg (index 3)
+      u(key, width, inln, c1, int)               -> width is 2nd arg (index 1)
+      n(key, width, inln, c1, int)               -> width is 2nd arg (index 1)
+
+    Returns (frame_samples dict, total_samples int).
+    total_samples is taken from the root frame width (first n() call at level 0),
+    NOT from sum(frame_samples.values()) which would double-count inclusive widths.
+    """
     cpool_end_idx = content.find('];', content.find('const cpool = [')) + 2
     data_start = content.find('unpack(cpool);', cpool_end_idx)
     if data_start == -1:
@@ -50,23 +61,32 @@ def parse_frames(content, cpool):
     data_section = content[data_start:data_end]
 
     frame_samples = defaultdict(int)
-    # f(key, level, left, width, ...) | u(key, width, ...) | n(key, width, ...)
-    calls = re.findall(r'([fun])\((\d+)(?:,(\d+))?(?:,(\d+))?', data_section)
+    total_samples = 0
 
+    # Capture up to 4 numeric args to reach width for f() calls
+    calls = re.findall(r'([fun])\((\d+)(?:,(\d+))?(?:,(\d+))?(?:,(\d+))?', data_section)
+
+    first_call = True
     for call in calls:
-        func, key_s, arg2, arg3 = call
+        func, key_s, arg2, _arg3, arg4 = call
         key = int(key_s)
         cpool_idx = key >> 3  # key >>> 3 in JS
 
         if func == 'f':
-            width = int(arg3) if arg3 else 0
+            # f(key, level, left, width) -> width is arg4
+            width = int(arg4) if arg4 else 0
         else:
+            # u/n(key, width) -> width is arg2
             width = int(arg2) if arg2 else 0
+            # The very first n() call is the root frame; its width = total samples
+            if func == 'n' and first_call and width > 0:
+                total_samples = width
+            first_call = False
 
         if cpool_idx < len(cpool) and width > 0:
             frame_samples[cpool[cpool_idx]] += width
 
-    return frame_samples
+    return frame_samples, total_samples
 
 
 # Framework registry — ordered, more-specific entries must come before less-specific ones.
@@ -142,7 +162,7 @@ def categorize_frame(name):
     return 'other'
 
 
-def analyze(html_path, focus_keywords=''):
+def analyze(html_path):
     content = open(html_path, encoding='utf-8', errors='replace').read()
 
     # Title
@@ -153,32 +173,16 @@ def analyze(html_path, focus_keywords=''):
     profiler = 'async-profiler' if 'async-profiler' in content else 'unknown'
 
     cpool = decode_cpool(content)
-    frame_samples = parse_frames(content, cpool)
+    frame_samples, total = parse_frames(content, cpool)
 
     # Remove the synthetic "all" root frame from per-frame stats
     frame_samples.pop('all', None)
 
-    total = sum(frame_samples.values())
+    # Fallback: if root width wasn't captured, use max single-frame width
+    if total == 0:
+        total = max(frame_samples.values(), default=1)
 
     sorted_frames = sorted(frame_samples.items(), key=lambda x: x[1], reverse=True)
-
-    # Focus frames: search ALL frames for user-specified keywords
-    focus_frames = []
-    if focus_keywords:
-        keywords = [k.strip().lower() for k in focus_keywords.split(',') if k.strip()]
-        seen = set()
-        for name, count in frame_samples.items():
-            n = name.lower()
-            if any(kw in n for kw in keywords) and name not in seen:
-                seen.add(name)
-                focus_frames.append({
-                    'name': name,
-                    'samples': count,
-                    'pct': round(100 * count / total, 2) if total else 0,
-                    'category': categorize_frame(name),
-                    'matched_keywords': [kw for kw in keywords if kw in n],
-                })
-        focus_frames.sort(key=lambda x: x['samples'], reverse=True)
 
     # Build per-frame list (top 200)
     frames = []
@@ -227,8 +231,6 @@ def analyze(html_path, focus_keywords=''):
         'total_samples': total,
         'unique_frames': len(frame_samples),
         'detected_frameworks': detected_frameworks,
-        'focus_keywords': [k.strip() for k in focus_keywords.split(',') if k.strip()],
-        'focus_frames': focus_frames,
         'frames': frames,
         'categories': categories,
         'top_per_category': dict(top_per_cat),
@@ -236,10 +238,8 @@ def analyze(html_path, focus_keywords=''):
 
 
 if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser(description='Parse async-profiler HTML flamegraph.')
-    parser.add_argument('html_path', help='Path to flamegraph HTML file')
-    parser.add_argument('--focus', default='', help='Comma-separated keywords to spotlight (e.g. translog,lz4,gc)')
-    args = parser.parse_args()
-    result = analyze(args.html_path, focus_keywords=args.focus)
+    if len(sys.argv) < 2:
+        print('Usage: parse_flamegraph.py <flamegraph.html>', file=sys.stderr)
+        sys.exit(1)
+    result = analyze(sys.argv[1])
     print(json.dumps(result, ensure_ascii=False, indent=2))
