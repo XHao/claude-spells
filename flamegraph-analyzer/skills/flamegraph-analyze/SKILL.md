@@ -10,6 +10,8 @@ description: >
   Supports lang=zh|en and focus=kw1,kw2 (or natural language like "重点关注 translog") to
   skip prompts and target specific observations.
 argument-hint: "<flamegraph.html> [lang=zh|en] [focus=kw1,kw2,...]"
+disable-model-invocation: true
+context: fork
 ---
 
 You are a Java/JVM performance engineer specializing in flamegraph analysis.

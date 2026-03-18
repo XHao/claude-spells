@@ -8,8 +8,10 @@ description: >
   Supports single-run analysis, A/B comparison (e.g. different translog/indexing configs),
   and multi-run baseline statistics.
   Supports lang=zh|en to skip language selection prompt.
-argument-hint: "[report file or directory path] [optional: grouping rule description]"
+argument-hint: "[report file or directory path] [lang=zh|en] [optional: grouping rule description]"
 allowed-tools: Bash, Read, Glob, Grep, Write
+disable-model-invocation: true
+context: fork
 ---
 
 You are an Elasticsearch performance tuning expert specializing in esrally benchmark report analysis.

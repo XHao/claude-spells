@@ -11,6 +11,8 @@ description: >
   Supports lang=zh|en to skip language selection prompt.
 version: 1.0.0
 argument-hint: "<jfr-file-or-full_analysis.txt> [lang=zh|en]"
+disable-model-invocation: true
+context: fork
 ---
 
 # JFR Analysis Skill
@@ -110,14 +112,7 @@ If the user enters "none", "skip", or leaves blank, set `SRC_PATH` to empty (ski
 2. Run `jfr_full.py` for a complete report, or individual scripts for targeted questions.
 3. Parse the Markdown output and present findings to the user.
 
-## Interpreting Results
-
-- **GC Max > 500ms**: Risk of application stall; investigate allocation hot paths.
-- **GC P99 > 200ms**: Significant tail latency impact.
-- **Threads with high allocation**: Indicates memory pressure; check top allocating classes and consider heap tuning.
-- **Lock wait ≥ 100ms (single event)**: Severe lock contention; consider reducing lock scope or switching to lock-free structures.
-- **I/O operation ≥ 100ms**: Slow disk or network; check paths and endpoints in the I/O report.
-
 ## Additional Resources
 
 - **`references/jfr-format.md`** — JFR event types, field names, and format reference
+- **`references/interpretation-guide.md`** — Thresholds and diagnostic rules for interpreting JFR results
