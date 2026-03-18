@@ -1,13 +1,14 @@
 ---
 name: flamegraph-analyze
 description: >
-  Analyze async-profiler HTML flamegraph files and generate a structured performance report.
-  Supports CPU, allocation, and lock flamegraphs produced by async-profiler.
-  Identifies hotspot methods, layer breakdowns (JDK, JVM internals, kernel, auto-detects
-  frameworks: Spring, Kafka, Flink, Elasticsearch, etc.), and provides optimization
-  recommendations for any JVM application.
-  Keywords: flamegraph, CPU profile, async-profiler, hotspot, performance analysis,
-  profiling, flame graph, Spring Boot, Kafka, Flink, Elasticsearch, allocation flamegraph.
+  Analyze async-profiler HTML flamegraph files for any JVM application.
+  Trigger when: user provides a .html flamegraph file; or asks to "分析火焰图"、"CPU 热点分析"、
+  "查看火焰图"、"性能剖析"、"analyze flamegraph", "CPU flame graph", "hotspot profiling",
+  "async-profiler report", "allocation flamegraph".
+  Auto-detects frameworks (Elasticsearch, Spring, Kafka, Flink, gRPC, etc.) and generates
+  layer breakdowns, hotspot methods, call chain analysis, and optimization recommendations.
+  Supports lang=zh|en and focus=kw1,kw2 (or natural language like "重点关注 translog") to
+  skip prompts and target specific observations.
 argument-hint: "<flamegraph.html> [lang=zh|en] [focus=kw1,kw2,...]"
 ---
 

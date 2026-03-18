@@ -2,10 +2,12 @@
 name: esrally-analyze
 description: >
   Analyze esrally benchmark reports and generate a structured technical summary.
-  Triggered when the user provides rally result files (.md, .tar.gz, .gz) or a directory.
-  Supports single-run analysis, A/B comparison (e.g. disable-translog vs async, different parameter sets),
+  Trigger when: user provides rally result files (.md, .tar.gz, .gz) or a directory containing
+  rally reports; or asks to "分析压测结果"、"对比两次 benchmark"、"rally 报告分析"、"吞吐量对比"、
+  "analyze rally results", "compare benchmark runs", "A/B test analysis", "indexing throughput".
+  Supports single-run analysis, A/B comparison (e.g. different translog/indexing configs),
   and multi-run baseline statistics.
-  Keywords: rally report, benchmark analysis, A/B test, translog, throughput, indexing performance.
+  Supports lang=zh|en to skip language selection prompt.
 argument-hint: "[report file or directory path] [optional: grouping rule description]"
 allowed-tools: Bash, Read, Glob, Grep, Write
 ---

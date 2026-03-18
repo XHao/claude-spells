@@ -1,7 +1,16 @@
 ---
 name: jfr-analysis
-description: This skill should be used when the user asks to "analyze JFR file", "JFR performance analysis", "check GC pauses", "CPU hotspots in JFR", "memory allocation analysis", "thread analysis", "analyze full_analysis.txt", or wants to understand Java Flight Recorder profiling data from any JVM application.
+description: >
+  Analyze Java Flight Recorder (JFR) profiling data for any JVM application.
+  Trigger when: user provides a .jfr file, a JFR text export (.txt), or a pre-parsed
+  full_analysis.txt; or asks to "分析 JFR"、"查看 GC 停顿"、"内存分配分析"、"线程分析"、
+  "锁竞争"、"CPU 热点"、"analyze JFR", "check GC pauses", "memory allocation",
+  "thread bottleneck", "lock contention", "CPU hotspots in JFR".
+  Covers: GC pause statistics, CPU hotspot methods, object allocation, thread activity,
+  lock contention, file/socket I/O latency.
+  Supports lang=zh|en to skip language selection prompt.
 version: 1.0.0
+argument-hint: "<jfr-file-or-full_analysis.txt> [lang=zh|en]"
 ---
 
 # JFR Analysis Skill
