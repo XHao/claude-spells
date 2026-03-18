@@ -1,4 +1,6 @@
-# Claude Code Local Plugins
+# Claude Spells
+
+> Claude Code plugins for Java/JVM performance engineering — JFR analysis, flamegraph profiling, and benchmark reporting.
 
 Personal Claude Code plugins for everyday tooling.
 
@@ -58,3 +60,27 @@ Analyze Java Flight Recorder (JFR) text exports for performance bottlenecks. Als
 Records 120s of profiling data from PID 12345, then produces a full Chinese-language analysis report.
 
 See [`jfr-analyzer/`](./jfr-analyzer/) for details.
+
+### esrally-analyze
+
+Analyze esrally benchmark reports and generate structured technical summaries.
+
+- **Skill**: invoke by providing `.md`, `.tar.gz`, or `.gz` rally result files, or ask to "分析压测结果" / "compare benchmark runs"
+- **Supports**: single-run analysis, A/B comparison (e.g. different translog/indexing configs), multi-run baseline statistics
+- **Output**: structured Markdown report with throughput, latency, and per-operation breakdowns
+- **Languages**: Chinese (`lang=zh`) and English (`lang=en`)
+
+See [`esrally-analyze/`](./esrally-analyze/) for details.
+
+### flamegraph-analyzer
+
+Analyze async-profiler HTML flamegraph files for any JVM application.
+
+- **Skill**: invoke by providing a `.html` flamegraph file, or ask to "分析火焰图" / "analyze flamegraph"
+- **Framework detection**: auto-detects Spring, Kafka, Flink, Elasticsearch, Lucene, Netty, gRPC, and more
+- **Analyzes**: CPU hotspots, layer breakdowns, critical call chains, GC/safepoint/lock contention patterns
+- **Focused analysis**: use `focus=translog,gc` or natural language like "重点关注 translog" to spotlight specific topics
+- **Output**: Markdown report with per-layer CPU distribution, top hotspot methods, prioritized recommendations, and optional focused observations section
+- **Languages**: Chinese (`lang=zh`) and English (`lang=en`)
+
+See [`flamegraph-analyzer/`](./flamegraph-analyzer/) for details.

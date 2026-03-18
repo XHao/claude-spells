@@ -16,7 +16,7 @@
     },
     {
       "name": "flamegraph-analyzer",
-      "description": "Analyze async-profiler HTML flamegraph files for CPU hotspots, layer breakdowns, and optimization recommendations.",
+      "description": "Analyze async-profiler HTML flamegraph files for any JVM application. Auto-detects frameworks (Spring, Kafka, Flink, Elasticsearch, etc.) and generates CPU hotspot analysis, layer breakdowns, and optimization recommendations.",
       "source": "./flamegraph-analyzer"
     }
   ]
