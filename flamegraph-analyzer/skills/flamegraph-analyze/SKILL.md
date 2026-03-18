@@ -8,7 +8,7 @@ description: >
   recommendations for any JVM application.
   Keywords: flamegraph, CPU profile, async-profiler, hotspot, performance analysis,
   profiling, flame graph, Spring Boot, Kafka, Flink, Elasticsearch, allocation flamegraph.
-argument-hint: "<flamegraph.html> [lang=zh|en]"
+argument-hint: "<flamegraph.html> [lang=zh|en] [focus=kw1,kw2,...]"
 ---
 
 You are a Java/JVM performance engineer specializing in flamegraph analysis.
@@ -43,10 +43,17 @@ Verify the file exists and ends in `.html`. If not, report an error and stop.
 
 ## Step 2: Parse the Flamegraph
 
+Extract focus keywords from `$ARGUMENTS` using either form:
+- Explicit flag: `focus=translog,gc` → `--focus translog,gc`
+- Natural language: phrases like "重点关注 translog"、"focus on gc and lock"、"关注 lz4 压缩" →
+  extract the topic nouns (e.g. `translog`, `gc`, `lz4`) and pass as `--focus translog,gc,lz4`
+
+If no focus intent is found, run without `--focus`.
+
 Run the parser script:
 
 ```bash
-python3 <skill-root>/scripts/parse_flamegraph.py <flamegraph.html>
+python3 <skill-root>/scripts/parse_flamegraph.py <flamegraph.html> [--focus <keywords>]
 ```
 
 Where `<skill-root>` is the directory containing this SKILL.md file.
@@ -147,7 +154,25 @@ Format each as:
   - Action: concrete configuration or code change
   - Expected gain: estimated improvement
 
-## 7. Summary
+## 7. Focused Observations（专项观察）
+
+Only include this section if `focus_frames` in the JSON is non-empty.
+
+For each keyword in `focus_keywords`, create a sub-section:
+
+### <keyword>
+
+| Frame | CPU % | Samples | Category |
+|-------|------:|-------:|----------|
+| ...   | ...   | ...    | ...      |
+
+- List all frames from `focus_frames` where `matched_keywords` contains this keyword
+- Sort by CPU % descending
+- After the table, add 2-3 sentences interpreting what these frames indicate and whether they represent a problem
+
+If `focus_frames` is empty, skip this section entirely.
+
+## 8. Summary
 
 One paragraph executive summary of the profiling session.
 ```
